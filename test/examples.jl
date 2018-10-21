@@ -15,6 +15,10 @@ examples_dir = joinpath(@__DIR__, "..", "examples")
 examples = find_sources(examples_dir)
 filter!(file -> readline(file) != "# EXCLUDE FROM TESTING", examples)
 
+is_shared_memory_supported = all(CUDAdrv.attribute(dev, CUDAdrv.MANAGED_MEMORY) .== 1 
+        for dev in CUDAdrv.devices())
+filter!(file -> is_shared_memory_supported || basename(file) != "multigpu.jl", examples)
+
 cd(examples_dir) do
     examples = relpath.(examples, Ref(examples_dir))
     @testset for example in examples
