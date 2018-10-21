@@ -39,9 +39,9 @@ function cuda_support(driver_version, toolkit_version)
               "your driver (which supports up to $(driver_version.major).$(driver_version.minor))")
     end
 
-    driver_target_support = CUDAapi.devices_for_cuda(driver_version)
+    max_driver_target_support = maximum(CUDAapi.devices_for_cuda(driver_version))
     toolkit_target_support = CUDAapi.devices_for_cuda(toolkit_version)
-    target_support = sort(collect(driver_target_support ∩ toolkit_target_support))
+    target_support = sort(collect(filter(v -> v <= max_driver_target_support, toolkit_target_support)))
 
     driver_ptx_support = CUDAapi.isas_for_cuda(driver_version)
     toolkit_ptx_support = CUDAapi.isas_for_cuda(toolkit_version)
