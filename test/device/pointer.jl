@@ -30,9 +30,9 @@ Base.zero(::Type{LoadableStruct}) = LoadableStruct(0,0)
     @test Mem.download(T, d_a) == Mem.download(T, d_b)
 end
 
-@testset "indexing" begin
+@testset "indexing" begin       
     function kernel(src, dst)
-        unsafe_store!(dst, CUDAnative.unsafe_cached_load(src, 4))
+        unsafe_store!(dst, CUDAnative.CUDAnative.unsafe_load(src, 4))
         return
     end
 

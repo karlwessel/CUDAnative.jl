@@ -146,21 +146,23 @@ end
     load_index(da)
 end
 
-@testset "ldg" begin
-    function kernel(a, b, i)
-        b[i] = ldg(a, i)
-        return
+if capability(dev) >= v"3.2"
+    @testset "ldg" begin
+        function kernel(a, b, i)
+            b[i] = ldg(a, i)
+            return
+        end
+
+        buf = IOBuffer()
+
+        a = CuTestArray([0])
+        b = CuTestArray([0])
+        @device_code_ptx io=buf @cuda kernel(a, b, 1)
+        @test Array(a) == Array(b)
+
+        asm = String(take!(copy(buf)))
+        @test occursin("ld.global.nc", asm)
     end
-
-    buf = IOBuffer()
-
-    a = CuTestArray([0])
-    b = CuTestArray([0])
-    @device_code_ptx io=buf @cuda kernel(a, b, 1)
-    @test Array(a) == Array(b)
-
-    asm = String(take!(copy(buf)))
-    @test occursin("ld.global.nc", asm)
 end
 
 end
